@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Practico 7</string>
+
+    <string-array name="filtro">
+        <item >Todos</item>
+        <item >Familia</item>
+        <item >Amigos</item>
+    </string-array>
 </resources>
