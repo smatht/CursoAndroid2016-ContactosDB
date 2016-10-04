@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,45 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void addListeners() {
         this.filtroSpinner.setOnItemSelectedListener(this);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                /////////////////////////////////////////////////////////////////////////////
+                // Si el elemento clickeado no esta seleccionado lo selecciona,
+                // caso contrario lo deselecciona.
+                /////////////////////////////////////////////////////////////////////////////
+                for (int i = 0; i < list.getChildCount(); i++) {
+                    if(position == i ){
+                        if (list.getChildAt(position).getTag() == null) {
+                            list.getChildAt(position).setBackground(getResources().getDrawable(
+                                    R.drawable.gradient_bg_hover));
+                            list.getChildAt(position).setTag(R.drawable.gradient_bg_hover);
+                        }
+                        else
+                        {
+                            list.getChildAt(position).setBackground(getResources().getDrawable(
+                                    R.drawable.gradient_bg));
+                            list.getChildAt(position).setTag(null);
+                        }
+                    }else{
+                        list.getChildAt(i).setBackground(getResources().getDrawable(
+                                R.drawable.gradient_bg));
+                        list.getChildAt(i).setTag(null);
+                    }
+
+                }
+
+            }
+        });
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(MainActivity.this, listaFiltrada.get(i).toString(),
+                        Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
     }
 
     private void addWidgets()
