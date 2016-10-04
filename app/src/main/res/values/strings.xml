@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Practico 7</string>
+    <string name="menu_add">Nuevo</string>
+    <string name="menu_close">Salir</string>
 
     <string-array name="filtro">
         <item >Todos</item>

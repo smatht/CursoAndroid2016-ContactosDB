@@ -1,8 +1,14 @@
 package sticchi.matias.practico7;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -37,7 +43,85 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         getAll();
         addListeners();
         addAdapters();
+        addContextMenu();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_add:
+                Toast.makeText(MainActivity.this, "Funcion no implementada", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.menu_close:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
+
+    private void addContextMenu() {
+        registerForContextMenu(list);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo)
+    {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.menu_ctx, menu);
+        AdapterView.AdapterContextMenuInfo info =
+                (AdapterView.AdapterContextMenuInfo)menuInfo;
+
+        int contactoID = Integer.parseInt(list.getAdapter().getItem(info.position).toString());
+        Contacto c = listaFiltrada.get(contactoID);
+
+        menu.setHeaderTitle(c.getNombre()+" "+c.getApellido());
+
+        inflater.inflate(R.menu.menu_ctx, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        AdapterView.AdapterContextMenuInfo info =
+                (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        int contactoID = Integer.parseInt(list.getAdapter().getItem(info.position).toString());
+        Contacto c = listaFiltrada.get(contactoID);
+
+        switch (item.getItemId()) {
+            case R.id.CtxOpc1:
+                String uri = "tel:"+c.getTelefono();
+                call(uri);
+                return true;
+            case R.id.CtxOpc2:
+                Toast.makeText(MainActivity.this, c.toString(), Toast.LENGTH_LONG).show();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    private void call(String uri) {
+        Intent in=new Intent(Intent.ACTION_CALL, Uri.parse(uri));
+        try{
+            startActivity(in);
+        }
+
+        catch (android.content.ActivityNotFoundException ex){
+            Toast.makeText(getApplicationContext(),"No se puede realizar la llamada",Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private void getAll()
     {
@@ -91,14 +175,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
-        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(MainActivity.this, listaFiltrada.get(i).toString(),
-                        Toast.LENGTH_LONG).show();
-                return false;
-            }
-        });
+
     }
 
     private void addWidgets()

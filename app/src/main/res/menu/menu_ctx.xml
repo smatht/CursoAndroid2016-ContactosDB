@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/CtxOpc1"
+        android:title="Llamar"/>
+    <item android:id="@+id/CtxOpc2"
+        android:title="Datos del contacto"/>
+
+</menu>
