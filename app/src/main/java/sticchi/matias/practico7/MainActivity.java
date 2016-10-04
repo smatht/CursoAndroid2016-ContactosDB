@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import sticchi.matias.practico7.colecciones.Contactos;
@@ -20,6 +21,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private TextView mMensaje;
     private Spinner filtroSpinner;
     private List<Contacto> listaContactos;
+    private List<Contacto> listaFiltrada;
+    private int filtroSelected = 0;
     private ListView list;
     private MostrarContactoAdapter adapter;
 
@@ -28,23 +31,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        addWidgets();
-        addListeners();
         crearDB();
+        addWidgets();
         getAll();
+        addListeners();
         addAdapters();
     }
 
     private void getAll()
     {
-        listaContactos= Contactos.getAll(this);
-
-        if(listaContactos != null);
-        {
-            adapter = new MostrarContactoAdapter(this, listaContactos);
-
-            list.setAdapter(adapter);
-        }
+        listaContactos = Contactos.getAll(this);
+        listaFiltrada = Contactos.getAll(this);
     }
 
     private void addAdapters() {
@@ -53,8 +50,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         adtFiltro.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         this.filtroSpinner.setAdapter(adtFiltro);
 
-        adapter=new MostrarContactoAdapter(this, listaContactos);
-        list.setAdapter(adapter);
+        if(listaFiltrada != null);
+        {
+            adapter = new MostrarContactoAdapter(this, listaFiltrada);
+            list.setAdapter(adapter);
+        }
     }
 
     private void addListeners() {
@@ -86,7 +86,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        reloadData(i);
+    }
 
+    private void reloadData(int filtro) {
+        listaFiltrada = new ArrayList<Contacto>();
+        for (Contacto c : this.listaContactos) {
+            if (filtro == 0) {
+                listaFiltrada.addAll(this.listaContactos);
+                break;
+            }
+            else
+            if (c.getGrupo() == filtro)
+                listaFiltrada.add(c);
+        }
+        this.adapter.getData().clear();
+        this.adapter.getData().addAll(listaFiltrada);
+        this.adapter.notifyDataSetChanged();
     }
 
     @Override
