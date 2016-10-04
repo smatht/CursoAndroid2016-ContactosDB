@@ -6,14 +6,22 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.List;
+
+import sticchi.matias.practico7.colecciones.Contactos;
 import sticchi.matias.practico7.db.ContactosSQLiteHelper;
+import sticchi.matias.practico7.entidades.Contacto;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 //    private TextView mMensaje;
     private Spinner filtroSpinner;
+    private List<Contacto> listaContactos;
+    private ListView list;
+    private MostrarContactoAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +30,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         addWidgets();
         addListeners();
-        addAdapters();
         crearDB();
+        getAll();
+        addAdapters();
+    }
+
+    private void getAll()
+    {
+        listaContactos= Contactos.getAll(this);
+
+        if(listaContactos != null);
+        {
+            adapter = new MostrarContactoAdapter(this, listaContactos);
+
+            list.setAdapter(adapter);
+        }
     }
 
     private void addAdapters() {
@@ -32,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         adtFiltro.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         this.filtroSpinner.setAdapter(adtFiltro);
 
+        adapter=new MostrarContactoAdapter(this, listaContactos);
+        list.setAdapter(adapter);
     }
 
     private void addListeners() {
@@ -42,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     {
 //        mMensaje = (TextView) findViewById(R.id.mje);
         filtroSpinner = (Spinner) findViewById(R.id.spinner);
+        this.list=(ListView)findViewById(R.id.list);
     }
 
     private void crearDB()
