@@ -105,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private void insertContacto(Contacto c) {
+    private int insertContacto(Contacto c) {
+        int transaccion = 0;
         ContactosSQLiteHelper contactos = new ContactosSQLiteHelper(this, NOMBRE_DB, null, 1);
         SQLiteDatabase db = contactos.getWritableDatabase();
 
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             nuevoRegistro.put("grupo", c.getGrupoSt());
             try
             {
-                db.insert("Contactos", null, nuevoRegistro);
+                transaccion = (int) db.insert("Contactos", null, nuevoRegistro);
                 Toast.makeText(this, "Inserción realizada con éxito.", Toast.LENGTH_LONG).show();
                 updateAddView(c);
             }
@@ -130,6 +131,62 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 db.close();
             }
         }
+        return transaccion;
+    }
+
+    private int updateContact(Contacto c, Contacto cActualizado) {
+        int transaccion = 0;
+        ContactosSQLiteHelper contactos = new ContactosSQLiteHelper(this, NOMBRE_DB, null, 1);
+        SQLiteDatabase db = contactos.getWritableDatabase();
+
+        if(db != null) {
+            ContentValues registroEditar = new ContentValues();
+            registroEditar.put("nombre", cActualizado.getNombre());
+            registroEditar.put("apellido", cActualizado.getApellido());
+            registroEditar.put("telefono", cActualizado.getTelefono());
+            registroEditar.put("grupo", cActualizado.getGrupoSt());
+            String where = "nombre=? and apellido=? and telefono=?";
+            String[] whereArgs = new String[]{c.getNombre(),c.getApellido(),c.getTelefono()};
+            try
+            {
+                transaccion = db.update("Contactos", registroEditar, where, whereArgs);
+                Toast.makeText(this, "Actualizacion realizada con éxito.", Toast.LENGTH_LONG).show();
+                updateAddView(c);
+            }
+            catch (Exception e)
+            {
+                Toast.makeText(this, "No se pudo realizar la actualizacion.", Toast.LENGTH_LONG).show();
+            }
+            finally
+            {
+                db.close();
+            }
+        }
+        return transaccion;
+    }
+
+    private int deleteContact(Contacto c) {
+        int transaccion = 0;
+        ContactosSQLiteHelper contactos = new ContactosSQLiteHelper(this, NOMBRE_DB, null, 1);
+        SQLiteDatabase db = contactos.getWritableDatabase();
+        String where = "nombre=? and apellido=? and telefono=?";
+        String[] whereArgs = new String[]{c.getNombre(),c.getApellido(),c.getTelefono()};
+
+        try
+        {
+            transaccion = db.delete("Contactos", where ,whereArgs);
+            Toast.makeText(this, "Se elimino correctamente.", Toast.LENGTH_LONG).show();
+            updateDeleteView(c);
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(this, "No se pudo eliminar.", Toast.LENGTH_LONG).show();
+        }
+        finally
+        {
+            db.close();
+        }
+        return transaccion;
     }
 
     private void updateAddView(Contacto c) {
@@ -182,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         AdapterView.AdapterContextMenuInfo info =
                 (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int contactoID = Integer.parseInt(list.getAdapter().getItem(info.position).toString());
-        Contacto c = listaFiltrada.get(contactoID);
+        final Contacto c = listaFiltrada.get(contactoID);
 
         switch (item.getItemId()) {
             case R.id.CtxOpc1:
@@ -193,6 +250,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Toast.makeText(MainActivity.this, c.toString(), Toast.LENGTH_LONG).show();
                 return true;
             case R.id.CtxOpc3:
+                LayoutInflater li = LayoutInflater.from(this);
+                View addContactView = li.inflate(R.layout.new_contact, null);
+
+                final EditText etNombre = (EditText) addContactView.findViewById(R.id.etNombre);
+                final EditText etApellido = (EditText) addContactView.findViewById(R.id.etApellido);
+                final EditText etTelefono = (EditText) addContactView.findViewById(R.id.etTelefono);
+                final EditText etGrupo = (EditText) addContactView.findViewById(R.id.etGrupo);
+                etNombre.setText(c.getNombre(), TextView.BufferType.EDITABLE);
+                etApellido.setText(c.getApellido(), TextView.BufferType.EDITABLE);
+                etTelefono.setText(c.getTelefono(), TextView.BufferType.EDITABLE);
+                etGrupo.setText(c.getGrupoSt(), TextView.BufferType.EDITABLE);
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        this);
+                alertDialogBuilder.setView(addContactView);
+
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+
+                                        String nombre = etNombre.getText().toString();
+                                        String apellido = etApellido.getText().toString();
+                                        String telefono = etTelefono.getText().toString();
+                                        String grupo = etGrupo.getText().toString();
+                                        Contacto cActualizado = new Contacto(nombre,apellido,telefono,grupo);
+                                        updateContact(c, cActualizado);
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                alertDialogBuilder.create();
+                alertDialogBuilder.show();
                 return true;
             case R.id.CtxOpc4:
                 deleteContact(c);
@@ -202,29 +297,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private int deleteContact(Contacto c) {
-        int transaccion = 0;
-        ContactosSQLiteHelper contactos = new ContactosSQLiteHelper(this, NOMBRE_DB, null, 1);
-        SQLiteDatabase db = contactos.getWritableDatabase();
-        String where = "nombre=? and apellido=? and telefono=?";
-        String[] whereArgs = new String[]{c.getNombre(),c.getApellido(),c.getTelefono()};
-
-        try
-        {
-            transaccion = db.delete("Contactos", where ,whereArgs);
-            Toast.makeText(this, "Se elimino correctamente.", Toast.LENGTH_LONG).show();
-            updateDeleteView(c);
-        }
-        catch (Exception e)
-        {
-            Toast.makeText(this, "No se pudo eliminar.", Toast.LENGTH_LONG).show();
-        }
-        finally
-        {
-            db.close();
-        }
-        return transaccion;
-    }
 
     private void call(String uri) {
         Intent in=new Intent(Intent.ACTION_CALL, Uri.parse(uri));
