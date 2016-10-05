@@ -63,6 +63,10 @@ public class Contacto {
         return ret;
     }
 
+    public String getGrupoSt(){
+        return this.grupo;
+    }
+
     public void setGrupo(String grupo) {
         this.grupo = grupo;
     }

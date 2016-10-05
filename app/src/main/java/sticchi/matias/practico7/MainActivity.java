@@ -1,5 +1,7 @@
 package sticchi.matias.practico7;
 
+import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,7 +31,12 @@ import sticchi.matias.practico7.db.ContactosSQLiteHelper;
 import sticchi.matias.practico7.entidades.Contacto;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-//    private TextView mMensaje;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // NOMBRE BD
+    ///////////////////////////////////////////////////////////////////////////
+    private final String NOMBRE_DB = "db_contactos";
+
     private Spinner filtroSpinner;
     private List<Contacto> listaContactos;
     private List<Contacto> listaFiltrada;
@@ -58,12 +66,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                         this);
                 alertDialogBuilder.setView(addContactView);
+
                 alertDialogBuilder
                         .setCancelable(false)
                         .setPositiveButton("OK",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,int id) {
+                                        Dialog f = (Dialog) dialog;
 
+                                        EditText etNombre, etApellido, etTelefono, etGrupo;
+                                        etNombre = (EditText) f.findViewById(R.id.etNombre);
+                                        etApellido = (EditText) f.findViewById(R.id.etApellido);
+                                        etTelefono = (EditText) f.findViewById(R.id.etTelefono);
+                                        etGrupo = (EditText) f.findViewById(R.id.etGrupo);
+
+                                        String nombre = etNombre.getText().toString();
+                                        String apellido = etApellido.getText().toString();
+                                        String telefono = etTelefono.getText().toString();
+                                        String grupo = etGrupo.getText().toString();
+                                        Contacto c = new Contacto(nombre,apellido,telefono,grupo);
+                                        insertContacto(c);
                                     }
                                 })
                         .setNegativeButton("Cancel",
@@ -81,6 +103,40 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void insertContacto(Contacto c) {
+        ContactosSQLiteHelper contactos = new ContactosSQLiteHelper(this, NOMBRE_DB, null, 1);
+        SQLiteDatabase db = contactos.getWritableDatabase();
+
+        if(db != null) {
+            ContentValues nuevoRegistro = new ContentValues();
+            nuevoRegistro.put("nombre", c.getNombre());
+            nuevoRegistro.put("apellido", c.getApellido());
+            nuevoRegistro.put("telefono", c.getTelefono());
+            nuevoRegistro.put("grupo", c.getGrupoSt());
+            try
+            {
+                db.insert("Contactos", null, nuevoRegistro);
+                Toast.makeText(this, "Inserción realizada con éxito.", Toast.LENGTH_LONG).show();
+                updateView(c);
+            }
+            catch (Exception e)
+            {
+                Toast.makeText(this, "No se pudo realizar la inserción.", Toast.LENGTH_LONG).show();
+            }
+            finally
+            {
+                db.close();
+            }
+        }
+    }
+
+    private void updateView(Contacto c) {
+        this.listaFiltrada.add(c);
+        this.adapter.getData().clear();
+        this.adapter.getData().addAll(listaFiltrada);
+        this.adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -203,14 +259,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void addWidgets()
     {
-//        mMensaje = (TextView) findViewById(R.id.mje);
-        filtroSpinner = (Spinner) findViewById(R.id.spinner);
-        this.list=(ListView)findViewById(R.id.list);
+        this.filtroSpinner = (Spinner) findViewById(R.id.spinner);
+        this.list=(ListView) findViewById(R.id.list);
     }
 
     private void crearDB()
     {
-        ContactosSQLiteHelper contactosHelper = new ContactosSQLiteHelper(this, "db_contactos", null, 1);
+        ContactosSQLiteHelper contactosHelper = new ContactosSQLiteHelper(this, NOMBRE_DB, null, 1);
 
         SQLiteDatabase db = contactosHelper.getWritableDatabase();
 
