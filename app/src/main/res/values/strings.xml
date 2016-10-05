@@ -4,8 +4,9 @@
     <string name="menu_close">Salir</string>
 
     <string-array name="filtro">
-        <item >Todos</item>
-        <item >Familia</item>
-        <item >Amigos</item>
+        <item>Todos</item>
+        <item>Familia</item>
+        <item>Amigos</item>
     </string-array>
+    <string name="title_activity_pepe">Pepe</string>
 </resources>

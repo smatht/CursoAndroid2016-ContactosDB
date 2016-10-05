@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     // NOMBRE BD
     ///////////////////////////////////////////////////////////////////////////
     private final String NOMBRE_DB = "db_contactos";
+
+    View v;
 
     private Spinner filtroSpinner;
     private List<Contacto> listaContactos;
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                         String telefono = etTelefono.getText().toString();
                                         String grupo = etGrupo.getText().toString();
                                         Contacto c = new Contacto(nombre,apellido,telefono,grupo);
-                                        insertContacto(c);
+                                        insertContact(c);
                                     }
                                 })
                         .setNegativeButton("Cancel",
@@ -105,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private int insertContacto(Contacto c) {
+    private int insertContact(Contacto c) {
         int transaccion = 0;
         ContactosSQLiteHelper contactos = new ContactosSQLiteHelper(this, NOMBRE_DB, null, 1);
         SQLiteDatabase db = contactos.getWritableDatabase();
@@ -119,12 +122,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             try
             {
                 transaccion = (int) db.insert("Contactos", null, nuevoRegistro);
-                Toast.makeText(this, "Inserción realizada con éxito.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Inserción realizada con éxito.", Toast.LENGTH_SHORT).show();
                 updateAddView(c);
             }
             catch (Exception e)
             {
-                Toast.makeText(this, "No se pudo realizar la inserción.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "No se pudo realizar la inserción.", Toast.LENGTH_SHORT).show();
             }
             finally
             {
@@ -150,12 +153,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             try
             {
                 transaccion = db.update("Contactos", registroEditar, where, whereArgs);
-                Toast.makeText(this, "Actualizacion realizada con éxito.", Toast.LENGTH_LONG).show();
-                updateAddView(c);
+                Toast.makeText(this, "Actualizacion realizada con éxito.", Toast.LENGTH_SHORT).show();
+                updateReplaceView(c,cActualizado);
             }
             catch (Exception e)
             {
-                Toast.makeText(this, "No se pudo realizar la actualizacion.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "No se pudo realizar la actualizacion.", Toast.LENGTH_SHORT).show();
             }
             finally
             {
@@ -175,12 +178,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         try
         {
             transaccion = db.delete("Contactos", where ,whereArgs);
-            Toast.makeText(this, "Se elimino correctamente.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Se elimino correctamente.", Toast.LENGTH_SHORT).show();
             updateDeleteView(c);
         }
         catch (Exception e)
         {
-            Toast.makeText(this, "No se pudo eliminar.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "No se pudo eliminar.", Toast.LENGTH_SHORT).show();
         }
         finally
         {
@@ -191,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void updateAddView(Contacto c) {
         this.listaFiltrada.add(c);
+        this.listaContactos.add(c);
         this.adapter.getData().clear();
         this.adapter.getData().addAll(listaFiltrada);
         this.adapter.notifyDataSetChanged();
@@ -198,9 +202,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void updateDeleteView(Contacto c){
         this.listaFiltrada.remove(c);
+        this.listaContactos.remove(c);
         this.adapter.getData().clear();
         this.adapter.getData().addAll(listaFiltrada);
         this.adapter.notifyDataSetChanged();
+    }
+
+    private void updateReplaceView(Contacto anterior, Contacto nuevo) {
+        this.listaFiltrada.add(nuevo);
+        this.listaContactos.add(nuevo);
+        updateDeleteView(anterior);
     }
 
     @Override
@@ -219,6 +230,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                     ContextMenu.ContextMenuInfo menuInfo)
     {
         super.onCreateContextMenu(menu, v, menuInfo);
+
+        this.v = v;
 
         MenuInflater inflater = getMenuInflater();
 //        inflater.inflate(R.menu.menu_ctx, menu);
@@ -247,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 call(uri);
                 return true;
             case R.id.CtxOpc2:
-                Toast.makeText(MainActivity.this, c.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, c.toString(), Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.CtxOpc3:
                 LayoutInflater li = LayoutInflater.from(this);
@@ -291,6 +304,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 return true;
             case R.id.CtxOpc4:
                 deleteContact(c);
+                Snackbar.make(v, "Registro eliminado", Snackbar.LENGTH_LONG)
+                        .setAction("Restaurar", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                insertContact(c);
+                            }
+                        })
+                        .show();
                 return true;
             default:
                 return super.onContextItemSelected(item);
