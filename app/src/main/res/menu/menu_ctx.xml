@@ -6,5 +6,9 @@
         android:title="Llamar"/>
     <item android:id="@+id/CtxOpc2"
         android:title="Datos del contacto"/>
+    <item android:id="@+id/CtxOpc3"
+        android:title="Modificar"/>
+    <item android:id="@+id/CtxOpc4"
+        android:title="Eliminar"/>
 
 </menu>
