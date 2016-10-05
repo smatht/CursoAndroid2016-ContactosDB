@@ -6,9 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import sticchi.matias.practico7.entidades.Contacto;
@@ -16,10 +19,12 @@ import sticchi.matias.practico7.entidades.Contacto;
 /**
  * Created by MatiasGui on 9/22/2016.
  */
-public class MostrarContactoAdapter extends BaseAdapter {
+public class MostrarContactoAdapter extends BaseAdapter implements Filterable {
     private Activity activity;
     protected List lista;
+    private ItemFilter mFilter = new ItemFilter();
     private static LayoutInflater inflater=null;
+    private List<Contacto>filteredData;
 
     public MostrarContactoAdapter(Activity a, List<Contacto> list) {
         activity = a;
@@ -61,5 +66,51 @@ public class MostrarContactoAdapter extends BaseAdapter {
         telefono.setText(contacto.getTelefono());
 
         return vi;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return mFilter;
+    }
+
+    private class ItemFilter extends Filter {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+
+            String filterString = constraint.toString().toLowerCase();
+
+            FilterResults results = new FilterResults();
+
+            final List<Contacto> list = lista;
+
+            int count = list.size();
+            final ArrayList<Contacto> nlist = new ArrayList<Contacto>(count);
+
+            Contacto filterableString ;
+            System.out.println("SENTROOOOOOOOOOOOOOOOOOOOOOO");
+
+            for (int i = 0; i < count; i++) {
+                filterableString = list.get(i);
+                if (filterableString.getNombre().toLowerCase().contains(filterString)) {
+                    nlist.add(filterableString);
+                }
+            }
+
+            results.values = nlist;
+            results.count = nlist.size();
+
+            return results;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            System.out.println("TAMBEN SENTROOOOOOOOOOOOOOOOOOOOOOO");
+            lista.clear();
+            lista.addAll((ArrayList<Contacto>) results.values);
+//            filteredData = (ArrayList<Contacto>) results.values;
+            notifyDataSetChanged();
+        }
+
     }
 }

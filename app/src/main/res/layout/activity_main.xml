@@ -14,10 +14,21 @@
         <!--android:layout_height="wrap_content"-->
         <!--android:text="Hello World!"-->
         <!--android:id="@+id/mje" />-->
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:hint="Buscar"
+        android:drawableLeft="@android:drawable/ic_menu_search"
+        style="@style/Base.TextAppearance.AppCompat.SearchResult" />
 
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/editText"
         android:id="@+id/spinner" />
 
     <ListView
@@ -28,5 +39,6 @@
         android:dividerHeight="1dp"
         android:layout_below="@+id/spinner"
         android:listSelector="@drawable/list_selector" />
+
 
 </RelativeLayout>

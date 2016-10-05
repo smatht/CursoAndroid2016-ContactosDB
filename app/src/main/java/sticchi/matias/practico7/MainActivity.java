@@ -10,6 +10,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private List<Contacto> listaContactos;
     private List<Contacto> listaFiltrada;
     private int filtroSelected = 0;
+    private EditText etFiltro;
     private ListView list;
     private MostrarContactoAdapter adapter;
 
@@ -55,8 +58,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         crearDB();
         addWidgets();
         getAll();
-        addListeners();
         addAdapters();
+        addListeners();
         addContextMenu();
     }
 
@@ -383,13 +386,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
+        etFiltro.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //here is your code
 
+                adapter.getFilter().filter(s.toString());
+//                list.setAdapter(adapter);
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+                // TODO Auto-generated method stub
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                // TODO Auto-generated method stub
+
+            }
+        });
     }
 
     private void addWidgets()
     {
         this.filtroSpinner = (Spinner) findViewById(R.id.spinner);
         this.list=(ListView) findViewById(R.id.list);
+        this.etFiltro = (EditText) findViewById(R.id.editText);
     }
 
     private void crearDB()
