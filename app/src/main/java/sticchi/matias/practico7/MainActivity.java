@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             {
                 db.insert("Contactos", null, nuevoRegistro);
                 Toast.makeText(this, "Inserción realizada con éxito.", Toast.LENGTH_LONG).show();
-                updateView(c);
+                updateAddView(c);
             }
             catch (Exception e)
             {
@@ -132,8 +132,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    private void updateView(Contacto c) {
+    private void updateAddView(Contacto c) {
         this.listaFiltrada.add(c);
+        this.adapter.getData().clear();
+        this.adapter.getData().addAll(listaFiltrada);
+        this.adapter.notifyDataSetChanged();
+    }
+
+    private void updateDeleteView(Contacto c){
+        this.listaFiltrada.remove(c);
         this.adapter.getData().clear();
         this.adapter.getData().addAll(listaFiltrada);
         this.adapter.notifyDataSetChanged();
@@ -185,9 +192,38 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.CtxOpc2:
                 Toast.makeText(MainActivity.this, c.toString(), Toast.LENGTH_LONG).show();
                 return true;
+            case R.id.CtxOpc3:
+                return true;
+            case R.id.CtxOpc4:
+                deleteContact(c);
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    private int deleteContact(Contacto c) {
+        int transaccion = 0;
+        ContactosSQLiteHelper contactos = new ContactosSQLiteHelper(this, NOMBRE_DB, null, 1);
+        SQLiteDatabase db = contactos.getWritableDatabase();
+        String where = "nombre=? and apellido=? and telefono=?";
+        String[] whereArgs = new String[]{c.getNombre(),c.getApellido(),c.getTelefono()};
+
+        try
+        {
+            transaccion = db.delete("Contactos", where ,whereArgs);
+            Toast.makeText(this, "Se elimino correctamente.", Toast.LENGTH_LONG).show();
+            updateDeleteView(c);
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(this, "No se pudo eliminar.", Toast.LENGTH_LONG).show();
+        }
+        finally
+        {
+            db.close();
+        }
+        return transaccion;
     }
 
     private void call(String uri) {
