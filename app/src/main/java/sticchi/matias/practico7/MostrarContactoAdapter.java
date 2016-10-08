@@ -21,27 +21,28 @@ import sticchi.matias.practico7.entidades.Contacto;
  */
 public class MostrarContactoAdapter extends BaseAdapter implements Filterable {
     private Activity activity;
-    protected List lista;
+    protected List<Contacto> lista;
     private ItemFilter mFilter = new ItemFilter();
     private static LayoutInflater inflater=null;
-    private List<Contacto>filteredData;
+    private List<Contacto> filteredData;
 
     public MostrarContactoAdapter(Activity a, List<Contacto> list) {
         activity = a;
         this.lista = list;
+        this.filteredData = list;
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     public int getCount() {
-        return lista.size();
+        return filteredData.size();
     }
 
     public List getData(){
-        return this.lista;
+        return this.filteredData;
     }
 
     public Object getItem(int position) {
-        return position;
+        return filteredData.get(position);
     }
 
     public long getItemId(int position) {
@@ -59,7 +60,7 @@ public class MostrarContactoAdapter extends BaseAdapter implements Filterable {
         ImageView thumb_image=(ImageView)vi.findViewById(R.id.list_image); // thumb image
 
 
-        contacto = (Contacto) lista.get(position);
+        contacto = (Contacto) filteredData.get(position);
 
         // Setting all values in listview
         title.setText(contacto.getNombre()+" "+contacto.getApellido());
@@ -84,10 +85,10 @@ public class MostrarContactoAdapter extends BaseAdapter implements Filterable {
             final List<Contacto> list = lista;
 
             int count = list.size();
-            final ArrayList<Contacto> nlist = new ArrayList<Contacto>(count);
+
+            ArrayList<Contacto> nlist = new ArrayList<Contacto>();
 
             Contacto filterableString ;
-            System.out.println("SENTROOOOOOOOOOOOOOOOOOOOOOO");
 
             for (int i = 0; i < count; i++) {
                 filterableString = list.get(i);
@@ -105,10 +106,8 @@ public class MostrarContactoAdapter extends BaseAdapter implements Filterable {
         @SuppressWarnings("unchecked")
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            System.out.println("TAMBEN SENTROOOOOOOOOOOOOOOOOOOOOOO");
-            lista.clear();
-            lista.addAll((ArrayList<Contacto>) results.values);
-//            filteredData = (ArrayList<Contacto>) results.values;
+//            getData().addAll((List) results.values);
+            filteredData = (ArrayList<Contacto>) results.values;
             notifyDataSetChanged();
         }
 

@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         AdapterView.AdapterContextMenuInfo info =
                 (AdapterView.AdapterContextMenuInfo)menuInfo;
 
-        int contactoID = Integer.parseInt(list.getAdapter().getItem(info.position).toString());
+        int contactoID = Integer.parseInt(String.valueOf(list.getAdapter().getItemId(info.position)));
         Contacto c = listaFiltrada.get(contactoID);
 
         menu.setHeaderTitle(c.getNombre()+" "+c.getApellido());
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         AdapterView.AdapterContextMenuInfo info =
                 (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        int contactoID = Integer.parseInt(list.getAdapter().getItem(info.position).toString());
+        int contactoID = Integer.parseInt(String.valueOf(list.getAdapter().getItemId(info.position)));
         final Contacto c = listaFiltrada.get(contactoID);
 
         switch (item.getItemId()) {

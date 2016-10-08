@@ -9,4 +9,5 @@
         <item>Amigos</item>
     </string-array>
     <string name="title_activity_pepe">Pepe</string>
+    <string name="buscar">Buscar</string>
 </resources>
